@@ -5,17 +5,20 @@
 
  float A,B,C;
  float cubeWidth=10;
- int width=160;
+ int width=70;
  int height=55;
- float zBuffer[160*55];
- char buffer[160*55];
+ float zBuffer[70*55];
+ char buffer[70*55];
  int backgroundACSIICODE=' ';
+ float horizontalOffset;
 
- float incermentSpeed=0.5;
-
+ float incermentSpeed=0.8;
+int idx;
  int distanceFromCam =60;
-
+ float K1=40;
  float x,y,z;
+ float ooz;
+ int xp,yp;
  
  float calculateX(int i, int j, int k)
  {
@@ -42,7 +45,24 @@ float calculateZ(int i, int j ,int k)
     x= calculateX(cubeX,cubeY,cubeZ);
     y= calculateY(cubeX,cubeY,cubeZ);
     z= calculateZ(cubeX,cubeY,cubeZ)+ distanceFromCam;
- }
+
+    ooz=1/z;
+    
+    xp=(int)(width/2+ horizontalOffset+K1*ooz*x*2);
+    yp=(int)(height/2+K1*ooz*y);
+  idx =xp+yp*width;
+    if(idx>=0&&idx<width*height)
+    {
+        if(ooz>zBuffer[idx])
+        {
+            zBuffer[idx]=ooz;
+            buffer[idx]=ch;
+        }
+
+    }
+    
+
+}
 
 int main()
 {
@@ -51,13 +71,29 @@ int main()
     {
         memset(buffer,backgroundACSIICODE,width*height);
         memset(zBuffer,0,width*height*4);
+        horizontalOffset = 1 * cubeWidth;
         for(float cubeX=-cubeWidth;cubeX<cubeWidth;cubeX+=incermentSpeed)
         {
             for(float cubeY= - cubeWidth;cubeY<cubeWidth;cubeY+=incermentSpeed)
             {
-                calculateForSurface(cubeX,cubeY,-cubeWidth,'#');
+                        calculateForSurface(cubeX, cubeY, -cubeWidth, '.');
+                        calculateForSurface(cubeWidth, cubeY, cubeX, '&');
+                        calculateForSurface(-cubeWidth, cubeY, -cubeX, '$');
+                        calculateForSurface(-cubeX, cubeY, cubeWidth, '*');
+                        calculateForSurface(cubeX, -cubeWidth, -cubeY, '@');
+                        calculateForSurface(cubeX, cubeWidth, cubeY, '#');
             }
         }
+        printf("\x1b[H");
+        for(int k=0;k<width*height;k++)
+        {
+            putchar(k%width ? buffer[k]:10);
+
+        }
+        A+=0.05;
+        B+=0.05;
+        C=0.01;
+        usleep(16000);
 
     }
     return 0;
