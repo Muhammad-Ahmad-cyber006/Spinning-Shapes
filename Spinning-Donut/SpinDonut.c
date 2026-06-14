@@ -69,8 +69,8 @@ int main()
         }
         fflush(stdout);
         // spin speed
-        A += 0.17f;
-        B += 0.07f;
+        A += 0.08;
+        B += 0.03;
 
         usleep(16000);
     }
